@@ -8,21 +8,41 @@
 
 #import "ViewController.h"
 
-@interface ViewController ()
+#import <GPUImage.h>
 
+@interface ViewController ()
+{
+    GPUImageVideoCamera *videoCamera;
+    GPUImageOutput<GPUImageInput> *filter;
+}
+@property (weak, nonatomic) IBOutlet UISlider *slider;
 @end
 
 @implementation ViewController
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+- (IBAction)didSliderUpdate:(id)sender {
+    UISlider *slider = (UISlider *)sender;
+    GPUImageBrightnessFilter *brightFilter = (GPUImageBrightnessFilter *)filter;
+    brightFilter.brightness = slider.value;
 }
 
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionFront];
+    
+    videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
+    videoCamera.horizontallyMirrorFrontFacingCamera = YES;
+    
+    
+    filter = [[GPUImageBrightnessFilter alloc] init];
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    GPUImageView *filterView = (GPUImageView *)self.view;
+    
+    [videoCamera addTarget:filter];
+    [filter addTarget:filterView];
+
+    [videoCamera startCameraCapture];
 }
 
 
